@@ -1,0 +1,708 @@
+﻿<Window x:Class="GoogleCalendarWidget.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        mc:Ignorable="d"
+        Title="Google Calendar Widget"
+        Height="500" Width="800"
+        MinHeight="400" MinWidth="400"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto"
+        FontFamily="{DynamicResource MaterialDesignFont}"
+        MouseLeftButtonDown="Window_MouseLeftButtonDown">
+
+    <Window.Resources>
+        <!-- 컨트롤 버튼 스타일 -->
+        <Style x:Key="ControlButton" TargetType="Button">
+            <Setter Property="Width" Value="32"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#CCCCCC"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                            VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#30FFFFFF"/>
+                    <Setter Property="Foreground" Value="White"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- 캘린더 날짜 버튼 스타일 -->
+        <Style x:Key="CalendarDayButton" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#CCCCCC"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Height" Value="45"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Border" 
+                                Background="{TemplateBinding Background}" 
+                                CornerRadius="8"
+                                Margin="2">
+                            <Grid>
+                                <TextBlock Text="{Binding Day}" 
+                                         HorizontalAlignment="Center" 
+                                         VerticalAlignment="Center"
+                                         FontSize="14"
+                                         Foreground="{TemplateBinding Foreground}"/>
+
+                                <!-- 이벤트 인디케이터 -->
+                                <ItemsControl ItemsSource="{Binding EventColors}"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Bottom"
+                                            Margin="0,0,0,4">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Ellipse Width="4" Height="4" 
+                                                   Fill="{Binding}"
+                                                   Margin="1,0"/>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <DataTrigger Binding="{Binding IsToday}" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#402E5F8A"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#804A9EFF"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsCurrentMonth}" Value="False">
+                                <Setter Property="Opacity" Value="0.4"/>
+                            </DataTrigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#30FFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- 네비게이션 버튼 스타일 -->
+        <Style x:Key="NavButton" TargetType="Button">
+            <Setter Property="Width" Value="28"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#CCCCCC"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#30FFFFFF"/>
+                    <Setter Property="Foreground" Value="White"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- 이벤트 아이템 스타일 -->
+        <Style x:Key="EventItemStyle" TargetType="Border">
+            <Setter Property="Background" Value="#201A1A1A"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Margin" Value="0,0,0,6"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#40252525"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- 캘린더 체크박스 스타일 -->
+        <Style x:Key="CalendarCheckBox" TargetType="CheckBox">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <Border Background="#10FFFFFF" CornerRadius="4" Padding="8,6" Margin="0,2">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Border Grid.Column="0" Width="16" Height="16" 
+                                      BorderBrush="#666" BorderThickness="1" 
+                                      CornerRadius="3" Background="#1A1A1A">
+                                    <Grid>
+                                        <TextBlock Text="✓" Foreground="White" 
+                                                 HorizontalAlignment="Center" 
+                                                 VerticalAlignment="Center"
+                                                 FontSize="12">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsChecked, RelativeSource={RelativeSource TemplatedParent}}" Value="True">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Grid>
+                                </Border>
+
+                                <Ellipse Grid.Column="1" Width="8" Height="8" 
+                                       Fill="{Binding BackgroundColor}" 
+                                       Margin="8,0,8,0"/>
+
+                                <TextBlock Grid.Column="2" Text="{Binding Summary}" 
+                                         Foreground="#CCCCCC" FontSize="12"
+                                         VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#20FFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <!-- 메인 Material Design Card 컨텐츠 -->
+        <materialDesign:Card UniformCornerRadius="12" 
+                           materialDesign:ElevationAssist.Elevation="Dp16"
+                           Opacity="{Binding WindowOpacity}"
+                           Background="{DynamicResource MaterialDesignPaper}">
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="45"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="25"/>
+                </Grid.RowDefinitions>
+
+                <!-- 헤더 -->
+                <materialDesign:ColorZone Grid.Row="0" 
+                                        Mode="PrimaryMid" 
+                                        CornerRadius="12,12,0,0"
+                                        materialDesign:ElevationAssist.Elevation="Dp2">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- 로고 및 제목 -->
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="12,0,0,0">
+                            <Image Source="favicon.ico" 
+                                   Width="18" Height="18" 
+                                   VerticalAlignment="Center"
+                                   RenderOptions.BitmapScalingMode="HighQuality"/>
+                            <TextBlock Text="Google Calendar" 
+                                     Foreground="White" 
+                                     FontSize="14" 
+                                     FontWeight="Medium"
+                                     VerticalAlignment="Center" 
+                                     Margin="8,0,0,0"/>
+                        </StackPanel>
+
+                        <!-- 컨트롤 버튼 -->
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" 
+                                  HorizontalAlignment="Right" Margin="0,0,8,0">
+                            <!-- 설정 -->
+                            <Button Style="{StaticResource ControlButton}" 
+                                  Click="SettingsButton_Click" 
+                                  ToolTip="캘린더 선택">
+                                <TextBlock Text="⚙️" FontSize="14"/>
+                            </Button>
+                            <!-- 새로고침 -->
+                            <Button Style="{StaticResource ControlButton}" 
+                                  Click="RefreshButton_Click" 
+                                  ToolTip="새로고침">
+                                <TextBlock Text="🔄" FontSize="14"/>
+                            </Button>
+                            <!-- 고정 버튼 -->
+                            <Button Style="{StaticResource ControlButton}" 
+                                  Click="PinButton_Click" 
+                                  ToolTip="바탕화면 고정">
+                                <TextBlock FontSize="14">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Text" Value="📌"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsPinned}" Value="True">
+                                                    <Setter Property="Text" Value="📍"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Button>
+                            <!-- 크기 조절 -->
+                            <Button Style="{StaticResource ControlButton}" 
+                                  Click="SizeButton_Click" 
+                                  ToolTip="크기 변경">
+                                <TextBlock FontSize="14">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Text" Value="⬜"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsCompactMode}" Value="True">
+                                                    <Setter Property="Text" Value="▫"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </materialDesign:ColorZone>
+
+                <!-- 메인 콘텐츠 -->
+                <Grid Grid.Row="1">
+                    <!-- 설정 패널 (오버레이) -->
+                    <materialDesign:Card Background="{DynamicResource MaterialDesignPaper}" 
+                                       materialDesign:ElevationAssist.Elevation="Dp8"
+                                       Opacity="0.98"
+                                       Visibility="{Binding IsSettingsOpen, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                       Panel.ZIndex="10">
+                        <Grid Margin="20">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- 설정 제목 -->
+                            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,16">
+                                <materialDesign:PackIcon Kind="Settings" 
+                                                       Width="24" Height="24" 
+                                                       VerticalAlignment="Center"
+                                                       Foreground="{DynamicResource PrimaryHueMidBrush}"/>
+                                <TextBlock Text="설정" 
+                                         Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                                         Margin="12,0,0,0" VerticalAlignment="Center"/>
+                            </StackPanel>
+
+                            <!-- 투명도 조절 -->
+                            <StackPanel Grid.Row="1" Margin="0,0,0,24">
+                                <Grid Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                        <materialDesign:PackIcon Kind="Opacity" 
+                                                               Width="20" Height="20" 
+                                                               VerticalAlignment="Center"
+                                                               Foreground="{DynamicResource MaterialDesignBodyLight}"/>
+                                        <TextBlock Text="투명도" 
+                                                 Style="{StaticResource MaterialDesignBody1TextBlock}"
+                                                 Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="2" 
+                                             Text="{Binding WindowOpacity, StringFormat={}{0:P0}}" 
+                                             Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                                             VerticalAlignment="Center"/>
+                                </Grid>
+                                <Slider Value="{Binding WindowOpacity}" 
+                                      Minimum="0.3" Maximum="1.0" 
+                                      TickFrequency="0.1"
+                                      IsSnapToTickEnabled="True"
+                                      materialDesign:SliderAssist.OnlyShowFocusVisualWhileDragging="True"/>
+                            </StackPanel>
+
+                            <!-- 캘린더 선택 -->
+                            <StackPanel Grid.Row="2">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                    <materialDesign:PackIcon Kind="Calendar" 
+                                                           Width="20" Height="20" 
+                                                           VerticalAlignment="Center"
+                                                           Foreground="{DynamicResource MaterialDesignBodyLight}"/>
+                                    <TextBlock Text="표시할 캘린더" 
+                                             Style="{StaticResource MaterialDesignBody1TextBlock}"
+                                             Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+
+                                <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="200">
+                                    <ItemsControl ItemsSource="{Binding AvailableCalendars}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <CheckBox IsChecked="{Binding IsSelected}"
+                                                        Content="{Binding Summary}"
+                                                        Margin="0,4"/>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                            </StackPanel>
+
+                            <!-- 닫기 버튼 -->
+                            <Button Grid.Row="3" 
+                                  Click="SettingsButton_Click"
+                                  HorizontalAlignment="Right"
+                                  Margin="0,24,0,0"
+                                  Style="{StaticResource MaterialDesignRaisedButton}">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="Close" Margin="0,0,8,0"/>
+                                    <TextBlock Text="닫기"/>
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+                    </materialDesign:Card>
+
+                    <!-- 캘린더 콘텐츠 -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" MinWidth="350"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="300" MinWidth="0"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- 캘린더 영역 -->
+                        <Grid Grid.Column="0" Margin="10">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="40"/>
+                                <RowDefinition Height="30"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- 월 네비게이션 -->
+                            <Grid Grid.Row="0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                    <Button Style="{StaticResource NavButton}" 
+                                          Command="{Binding PreviousMonthCommand}"
+                                          ToolTip="이전 달">
+                                        <TextBlock Text="◀" FontSize="12"/>
+                                    </Button>
+                                    <Button Style="{StaticResource NavButton}" 
+                                          Command="{Binding NextMonthCommand}"
+                                          ToolTip="다음 달"
+                                          Margin="4,0,0,0">
+                                        <TextBlock Text="▶" FontSize="12"/>
+                                    </Button>
+                                </StackPanel>
+
+                                <TextBlock Grid.Column="1" 
+                                         Text="{Binding CurrentMonthDisplay}" 
+                                         Foreground="White" 
+                                         FontSize="18" 
+                                         FontWeight="Medium"
+                                         HorizontalAlignment="Center" 
+                                         VerticalAlignment="Center"/>
+
+                                <Button Grid.Column="2" 
+                                      Style="{StaticResource NavButton}"
+                                      Command="{Binding TodayCommand}"
+                                      ToolTip="오늘">
+                                    <TextBlock Text="오늘" FontSize="12"/>
+                                </Button>
+                            </Grid>
+
+                            <!-- 요일 헤더 -->
+                            <Grid Grid.Row="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Grid.Column="0" Text="일" Foreground="#FF6B6B" FontSize="12" HorizontalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Text="월" Foreground="#888888" FontSize="12" HorizontalAlignment="Center"/>
+                                <TextBlock Grid.Column="2" Text="화" Foreground="#888888" FontSize="12" HorizontalAlignment="Center"/>
+                                <TextBlock Grid.Column="3" Text="수" Foreground="#888888" FontSize="12" HorizontalAlignment="Center"/>
+                                <TextBlock Grid.Column="4" Text="목" Foreground="#888888" FontSize="12" HorizontalAlignment="Center"/>
+                                <TextBlock Grid.Column="5" Text="금" Foreground="#888888" FontSize="12" HorizontalAlignment="Center"/>
+                                <TextBlock Grid.Column="6" Text="토" Foreground="#4A9EFF" FontSize="12" HorizontalAlignment="Center"/>
+                            </Grid>
+
+                            <!-- 캘린더 그리드 -->
+                            <ItemsControl Grid.Row="2" ItemsSource="{Binding CalendarDays}" Margin="0,5,0,0">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <UniformGrid Columns="7" Rows="6"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Style="{StaticResource CalendarDayButton}"
+                                              Click="CalendarDay_Click"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </Grid>
+
+                        <!-- 구분선 -->
+                        <Border Grid.Column="1" Width="1" Background="#30FFFFFF" Margin="0,10">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsCompactMode}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                        </Border>
+
+                        <!-- 이벤트 패널 -->
+                        <Grid Grid.Column="2" Margin="10">
+                            <Grid.Style>
+                                <Style TargetType="Grid">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsCompactMode}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Grid.Style>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- 선택된 날짜 헤더 -->
+                            <materialDesign:Card Grid.Row="0" 
+                                               materialDesign:ElevationAssist.Elevation="Dp2" 
+                                               Padding="16,12" Margin="0,0,0,12"
+                                               Background="{DynamicResource MaterialDesignCardBackground}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="{Binding SelectedDateDisplay}" 
+                                                 Foreground="White" 
+                                                 FontSize="14" 
+                                                 FontWeight="Medium"/>
+                                        <TextBlock Foreground="#888888" 
+                                                 FontSize="11"
+                                                 Margin="0,4,0,0">
+                                            <TextBlock.Text>
+                                                <Binding Path="SelectedDateEvents.Count" StringFormat="{}{0}개 일정"/>
+                                            </TextBlock.Text>
+                                        </TextBlock>
+                                    </StackPanel>
+
+                                    <!-- 일정 추가 버튼 -->
+                                    <Button Grid.Column="1" 
+                                          Command="{Binding AddEventCommand}"
+                                          ToolTip="일정 추가"
+                                          Style="{StaticResource MaterialDesignFloatingActionMiniButton}"
+                                          Width="32" Height="32">
+                                        <materialDesign:PackIcon Kind="Plus" Width="18" Height="18"/>
+                                    </Button>
+                                </Grid>
+                            </materialDesign:Card>
+
+                            <!-- 이벤트 목록 -->
+                            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                                <ItemsControl ItemsSource="{Binding SelectedDateEvents}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Style="{StaticResource EventItemStyle}" 
+                                                    MouseLeftButtonUp="EventItem_MouseLeftButtonUp"
+                                                    MouseRightButtonUp="EventItem_MouseRightButtonUp"
+                                                    Cursor="Hand">
+                                                <Border.ContextMenu>
+                                                    <ContextMenu Background="#FF2A2A2A" 
+                                                               Foreground="White"
+                                                               BorderBrush="#FF404040">
+                                                        <MenuItem Header="수정" 
+                                                                Click="EditEvent_Click"
+                                                                Foreground="White">
+                                                            <MenuItem.Icon>
+                                                                <TextBlock Text="✏️" FontSize="12"/>
+                                                            </MenuItem.Icon>
+                                                        </MenuItem>
+                                                        <MenuItem Header="삭제" 
+                                                                Click="DeleteEvent_Click"
+                                                                Foreground="#FF8B0000">
+                                                            <MenuItem.Icon>
+                                                                <TextBlock Text="🗑️" FontSize="12"/>
+                                                            </MenuItem.Icon>
+                                                        </MenuItem>
+                                                    </ContextMenu>
+                                                </Border.ContextMenu>
+                                                
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="4"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <!-- 색상 인디케이터 -->
+                                                    <Border Grid.Column="0" 
+                                                          Background="{Binding ColorId}" 
+                                                          CornerRadius="2,0,0,2"
+                                                          Margin="-10,0,0,0"/>
+
+                                                    <!-- 이벤트 정보 -->
+                                                    <StackPanel Grid.Column="1" Margin="8,0,0,0">
+                                                        <TextBlock Text="{Binding Title}" 
+                                                                 Foreground="White" 
+                                                                 FontSize="13" 
+                                                                 FontWeight="Medium"
+                                                                 TextTrimming="CharacterEllipsis"/>
+
+                                                        <TextBlock Text="{Binding CalendarName}" 
+                                                                 Foreground="#666666" 
+                                                                 FontSize="10"
+                                                                 Margin="0,2,0,0"/>
+
+                                                        <TextBlock Text="{Binding TimeDisplay}" 
+                                                                 Foreground="#4A9EFF" 
+                                                                 FontSize="11"
+                                                                 Margin="0,3,0,0"/>
+
+                                                        <TextBlock Text="{Binding Location}" 
+                                                                 Foreground="#888888" 
+                                                                 FontSize="11"
+                                                                 Margin="0,2,0,0"
+                                                                 TextTrimming="CharacterEllipsis">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding Location}" Value="{x:Null}">
+                                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding Location}" Value="">
+                                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+
+                                                        <TextBlock Text="{Binding DurationDisplay}" 
+                                                                 Foreground="#666666" 
+                                                                 FontSize="10"
+                                                                 Margin="0,2,0,0"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+
+                            <!-- 빈 상태 메시지 -->
+                            <TextBlock Grid.Row="1" 
+                                     Text="선택한 날짜에&#x0a;일정이 없습니다" 
+                                     Foreground="#555555" 
+                                     FontSize="13" 
+                                     HorizontalAlignment="Center" 
+                                     VerticalAlignment="Center"
+                                     TextAlignment="Center">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SelectedDateEvents.Count}" Value="0">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+                    </Grid>
+                </Grid>
+
+                <!-- 상태바 및 리사이즈 그립 -->
+                <Border Grid.Row="2" CornerRadius="0,0,12,12">
+                    <Border.Background>
+                        <SolidColorBrush Color="#1A1A1A" Opacity="0.8"/>
+                    </Border.Background>
+
+                    <Grid>
+                        <TextBlock Text="{Binding StatusMessage}" 
+                                 Foreground="#666666" 
+                                 FontSize="10" 
+                                 HorizontalAlignment="Left" 
+                                 VerticalAlignment="Center"
+                                 Margin="10,0,0,0"/>
+
+                        <!-- 리사이즈 그립 -->
+                        <Path HorizontalAlignment="Right" 
+                              VerticalAlignment="Bottom" 
+                              Margin="0,0,2,2"
+                              Fill="#404040"
+                              Cursor="SizeNWSE"
+                              MouseLeftButtonDown="ResizeGrip_MouseLeftButtonDown"
+                              MouseMove="ResizeGrip_MouseMove"
+                              MouseLeftButtonUp="ResizeGrip_MouseLeftButtonUp">
+                            <Path.Data>
+                                <PathGeometry>
+                                    <PathFigure StartPoint="0,10">
+                                        <LineSegment Point="10,10"/>
+                                        <LineSegment Point="10,0"/>
+                                    </PathFigure>
+                                    <PathFigure StartPoint="5,10">
+                                        <LineSegment Point="10,10"/>
+                                        <LineSegment Point="10,5"/>
+                                    </PathFigure>
+                                </PathGeometry>
+                            </Path.Data>
+                        </Path>
+                    </Grid>
+                </Border>
+            </Grid>
+        </materialDesign:Card>
+    </Grid>
+</Window>
