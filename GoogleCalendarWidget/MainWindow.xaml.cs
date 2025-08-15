@@ -760,8 +760,9 @@ namespace GoogleCalendarWidget
 
             try
             {
-                StatusMessage = "일정 로드 중...";
+                // 이벤트 캐시 초기화 (선택 해제된 캘린더 이벤트 제거)
                 _eventsCache.Clear();
+                StatusMessage = "일정 로드 중...";
 
                 var selectedCalendars = AvailableCalendars.Where(c => c.IsSelected).ToList();
                 if (!selectedCalendars.Any())
