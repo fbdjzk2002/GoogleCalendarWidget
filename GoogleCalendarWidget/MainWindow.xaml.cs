@@ -1192,13 +1192,13 @@ namespace GoogleCalendarWidget
                     {
                         DateTime = eventData.IsAllDay ? null : eventData.StartTime,
                         Date = eventData.IsAllDay ? eventData.StartTime.ToString("yyyy-MM-dd") : null,
-                        TimeZone = eventData.IsAllDay ? null : TimeZoneInfo.Local.Id
+                        TimeZone = eventData.IsAllDay ? null : GetGoogleTimeZone()
                     },
                     End = new EventDateTime
                     {
                         DateTime = eventData.IsAllDay ? null : eventData.EndTime,
                         Date = eventData.IsAllDay ? eventData.EndTime.ToString("yyyy-MM-dd") : null,
-                        TimeZone = eventData.IsAllDay ? null : TimeZoneInfo.Local.Id
+                        TimeZone = eventData.IsAllDay ? null : GetGoogleTimeZone()
                     }
                 };
 
@@ -1234,13 +1234,13 @@ namespace GoogleCalendarWidget
                 {
                     DateTime = eventData.IsAllDay ? null : eventData.StartTime,
                     Date = eventData.IsAllDay ? eventData.StartTime.ToString("yyyy-MM-dd") : null,
-                    TimeZone = eventData.IsAllDay ? null : TimeZoneInfo.Local.Id
+                    TimeZone = eventData.IsAllDay ? null : GetGoogleTimeZone()
                 };
                 eventToUpdate.End = new EventDateTime
                 {
                     DateTime = eventData.IsAllDay ? null : eventData.EndTime,
                     Date = eventData.IsAllDay ? eventData.EndTime.ToString("yyyy-MM-dd") : null,
-                    TimeZone = eventData.IsAllDay ? null : TimeZoneInfo.Local.Id
+                    TimeZone = eventData.IsAllDay ? null : GetGoogleTimeZone()
                 };
 
                 var updateRequest = _service.Events.Update(eventToUpdate, originalEvent.CalendarId, originalEvent.Id);
@@ -1282,6 +1282,50 @@ namespace GoogleCalendarWidget
                 StatusMessage = $"일정 삭제 실패: {ex.Message}";
                 MessageBox.Show($"일정 삭제 중 오류가 발생했습니다: {ex.Message}", "오류", 
                     MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private string GetGoogleTimeZone()
+        {
+            try
+            {
+                var localTimeZone = TimeZoneInfo.Local;
+                
+                // 한국 표준시 처리
+                if (localTimeZone.Id.Contains("Korea") || localTimeZone.StandardName.Contains("Korea"))
+                {
+                    return "Asia/Seoul";
+                }
+                
+                // 일본 표준시 처리
+                if (localTimeZone.Id.Contains("Tokyo") || localTimeZone.StandardName.Contains("Tokyo"))
+                {
+                    return "Asia/Tokyo";
+                }
+                
+                // 중국 표준시 처리
+                if (localTimeZone.Id.Contains("China") || localTimeZone.StandardName.Contains("China"))
+                {
+                    return "Asia/Shanghai";
+                }
+                
+                // UTC 오프셋으로 타임존 결정
+                var offset = localTimeZone.GetUtcOffset(DateTime.Now);
+                return offset.TotalHours switch
+                {
+                    9 => "Asia/Seoul",     // UTC+9 (한국, 일본)
+                    8 => "Asia/Shanghai",  // UTC+8 (중국)
+                    -5 => "America/New_York", // UTC-5 (미국 동부)
+                    -8 => "America/Los_Angeles", // UTC-8 (미국 서부)
+                    0 => "UTC",           // UTC
+                    1 => "Europe/London", // UTC+1 (영국)
+                    _ => "Asia/Seoul"     // 기본값으로 한국 시간
+                };
+            }
+            catch
+            {
+                // 오류 발생 시 기본값으로 한국 시간 반환
+                return "Asia/Seoul";
             }
         }
 
