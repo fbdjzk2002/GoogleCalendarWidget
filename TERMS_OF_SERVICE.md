@@ -1,6 +1,6 @@
 # 📜 서비스 약관 (Terms of Service)
 
-**Google Calendar Widget**
+**Material Calendar Widget**
 
 **최종 업데이트: 2025년 1월**
 
@@ -8,12 +8,12 @@
 
 ## 📋 개요
 
-본 서비스 약관("약관")은 Google Calendar Widget("본 애플리케이션", "서비스")의 사용에 관한 조건을 설명합니다. 본 애플리케이션을 사용함으로써 귀하는 본 약관에 동의하는 것으로 간주됩니다.
+본 서비스 약관("약관")은 Material Calendar Widget("본 애플리케이션", "서비스")의 사용에 관한 조건을 설명합니다. 본 애플리케이션을 사용함으로써 귀하는 본 약관에 동의하는 것으로 간주됩니다.
 
 ## 🎯 서비스 설명
 
 ### 제공 기능
-Google Calendar Widget은 다음 기능을 제공합니다:
+Material Calendar Widget은 다음 기능을 제공합니다:
 
 - 📅 **캘린더 보기**: Google Calendar 일정을 데스크톱에서 조회
 - ➕ **일정 관리**: 일정 생성, 수정, 삭제

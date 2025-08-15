@@ -68,7 +68,7 @@ WPF 기반 Google Calendar 데스크탑 위젯입니다.
    1. "API 및 서비스" → "OAuth 동의 화면"으로 이동
    2. **외부** 선택 (다른 사용자도 사용 가능하도록)
    3. 필수 정보 입력:
-      - 앱 이름: `Google Calendar Widget`
+      - 앱 이름: `Material Calendar Widget`
       - 사용자 지원 이메일: 본인 이메일 주소
       - 홈페이지 URL: `https://github.com/fbdjzk2002/GoogleCalendarWidget`
       - 개인정보처리방침 URL: `https://github.com/fbdjzk2002/GoogleCalendarWidget/blob/master/PRIVACY_POLICY.md`
