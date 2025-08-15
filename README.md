@@ -71,6 +71,8 @@ WPF 기반 Google Calendar 데스크탑 위젯입니다.
       - 앱 이름: `Google Calendar Widget`
       - 사용자 지원 이메일: 본인 이메일 주소
       - 홈페이지 URL: `https://github.com/fbdjzk2002/GoogleCalendarWidget`
+      - 개인정보처리방침 URL: `https://github.com/fbdjzk2002/GoogleCalendarWidget/blob/master/PRIVACY_POLICY.md`
+      - 서비스 약관 URL: `https://github.com/fbdjzk2002/GoogleCalendarWidget/blob/master/TERMS_OF_SERVICE.md`
       - 개발자 연락처 정보: 본인 이메일 주소
    4. "저장 후 계속" 클릭
    5. 범위(Scopes) 단계에서 "저장 후 계속" 클릭
@@ -189,6 +191,12 @@ WPF 기반 Google Calendar 데스크탑 위젯입니다.
 ## 📄 라이선스
 
 이 프로젝트는 MIT 라이선스 하에 배포됩니다. 자세한 내용은 `LICENSE` 파일을 참조하세요.
+
+## 📋 정책 및 약관
+
+- 🔒 **[개인정보처리방침](PRIVACY_POLICY.md)** - 개인정보 수집 및 처리 방침
+- 📜 **[서비스 약관](TERMS_OF_SERVICE.md)** - 서비스 이용 약관 및 조건
+- ⚖️ **[MIT 라이선스](LICENSE)** - 오픈소스 라이선스 조건
 
 ## 🙏 감사의 말
 
