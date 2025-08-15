@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- 홈페이지 -->
+  <url>
+    <loc>https://fbdjzk2002.github.io/GoogleCalendarWidget/</loc>
+    <lastmod>2025-01-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  
+  <!-- 개인정보처리방침 -->
+  <url>
+    <loc>https://fbdjzk2002.github.io/GoogleCalendarWidget/privacy-policy.html</loc>
+    <lastmod>2025-01-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <!-- 서비스 약관 -->
+  <url>
+    <loc>https://fbdjzk2002.github.io/GoogleCalendarWidget/terms-of-service.html</loc>
+    <lastmod>2025-01-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <!-- Google Search Console 소유권 확인 파일 -->
+  <url>
+    <loc>https://fbdjzk2002.github.io/GoogleCalendarWidget/googlef3aa48b3b5e1e108.html</loc>
+    <lastmod>2025-01-27</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.1</priority>
+  </url>
+</urlset>
