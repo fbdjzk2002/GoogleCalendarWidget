@@ -1152,8 +1152,8 @@ namespace GoogleCalendarWidget
                 {
                     if (dialog.IsDeleteRequested && existingEvent != null)
                     {
-                        // 삭제 요청
-                        _ = DeleteEvent(existingEvent);
+                        // 삭제 요청 (EventDialog에서 이미 확인받음)
+                        _ = DeleteEvent(existingEvent, skipConfirmation: true);
                     }
                     else if (existingEvent == null)
                     {
@@ -1257,16 +1257,22 @@ namespace GoogleCalendarWidget
             }
         }
 
-        private async Task DeleteEvent(CalendarEventItem eventToDelete)
+        private async Task DeleteEvent(CalendarEventItem eventToDelete, bool skipConfirmation = false)
         {
             if (_service == null || eventToDelete == null || string.IsNullOrEmpty(eventToDelete.Id)) return;
 
             try
             {
-                var result = MessageBox.Show($"'{eventToDelete.Title}' 일정을 삭제하시겠습니까?", 
-                    "일정 삭제", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                bool shouldDelete = skipConfirmation;
+                
+                if (!skipConfirmation)
+                {
+                    var result = MessageBox.Show($"'{eventToDelete.Title}' 일정을 삭제하시겠습니까?", 
+                        "일정 삭제", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    shouldDelete = result == MessageBoxResult.Yes;
+                }
 
-                if (result == MessageBoxResult.Yes)
+                if (shouldDelete)
                 {
                     StatusMessage = "일정 삭제 중...";
 
