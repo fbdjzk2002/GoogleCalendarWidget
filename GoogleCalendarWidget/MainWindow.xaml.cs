@@ -767,6 +767,19 @@ namespace GoogleCalendarWidget
                 var selectedCalendars = AvailableCalendars.Where(c => c.IsSelected).ToList();
                 if (!selectedCalendars.Any())
                 {
+                    // 선택된 캘린더가 없을 때 모든 일정 표시를 제거
+                    System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        foreach (var dayItem in CalendarDays)
+                        {
+                            dayItem.EventColors.Clear();
+                            dayItem.HasEvents = false;
+                            dayItem.EventCount = 0;
+                        }
+                        
+                        SelectedDateEvents.Clear();
+                    });
+                    
                     StatusMessage = "선택된 캘린더가 없습니다.";
                     return;
                 }
@@ -821,22 +834,37 @@ namespace GoogleCalendarWidget
 
                 System.Windows.Application.Current.Dispatcher.Invoke(() =>
                 {
+                    var selectedCalendarIds = selectedCalendars.Select(c => c.Id).ToHashSet();
+                    
                     foreach (var dayItem in CalendarDays)
                     {
                         dayItem.EventColors.Clear();
 
                         if (_eventsCache.ContainsKey(dayItem.Date.Date))
                         {
-                            dayItem.HasEvents = true;
-                            dayItem.EventCount = _eventsCache[dayItem.Date.Date].Count;
-
-                            var colors = _eventsCache[dayItem.Date.Date]
-                                .Select(e => GetCalendarColor(e.Organizer?.Email))
-                                .Distinct()
-                                .Take(3)
+                            // 선택된 캘린더의 이벤트만 필터링
+                            var filteredEvents = _eventsCache[dayItem.Date.Date]
+                                .Where(e => selectedCalendarIds.Contains(e.Organizer?.Email))
                                 .ToList();
+                            
+                            if (filteredEvents.Any())
+                            {
+                                dayItem.HasEvents = true;
+                                dayItem.EventCount = filteredEvents.Count;
 
-                            dayItem.EventColors = colors;
+                                var colors = filteredEvents
+                                    .Select(e => GetCalendarColor(e.Organizer?.Email))
+                                    .Distinct()
+                                    .Take(3)
+                                    .ToList();
+
+                                dayItem.EventColors = colors;
+                            }
+                            else
+                            {
+                                dayItem.HasEvents = false;
+                                dayItem.EventCount = 0;
+                            }
                         }
                         else
                         {
@@ -861,7 +889,17 @@ namespace GoogleCalendarWidget
 
             if (_eventsCache.ContainsKey(SelectedDate.Date))
             {
-                foreach (var eventItem in _eventsCache[SelectedDate.Date].OrderBy(e => ParseDateTime(e.Start)))
+                // 선택된 캘린더만 필터링
+                var selectedCalendarIds = AvailableCalendars
+                    .Where(c => c.IsSelected)
+                    .Select(c => c.Id)
+                    .ToHashSet();
+
+                var filteredEvents = _eventsCache[SelectedDate.Date]
+                    .Where(e => selectedCalendarIds.Contains(e.Organizer?.Email))
+                    .OrderBy(e => ParseDateTime(e.Start));
+
+                foreach (var eventItem in filteredEvents)
                 {
                     var calendarEvent = new CalendarEventItem
                     {
