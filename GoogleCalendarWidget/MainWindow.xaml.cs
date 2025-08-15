@@ -712,6 +712,8 @@ namespace GoogleCalendarWidget
                             if (e.PropertyName == nameof(CalendarListItem.IsSelected))
                             {
                                 SaveSelectedCalendars();
+                                _eventsCache.Clear();
+                                GenerateCalendarDays(); // 월 전체를 새로 그림
                                 await LoadMonthEvents();
                             }
                         };
@@ -758,13 +760,31 @@ namespace GoogleCalendarWidget
         {
             if (_service == null) return;
 
+            var selectedCalendars = AvailableCalendars.Where(c => c.IsSelected).ToList();
+
+            // 선택된 캘린더가 없으면 완전 초기화
+            if (!selectedCalendars.Any())
+            {
+                _eventsCache.Clear();
+                System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                {
+                    foreach (var dayItem in CalendarDays)
+                    {
+                        dayItem.EventColors.Clear();
+                        dayItem.HasEvents = false;
+                        dayItem.EventCount = 0;
+                    }
+                    SelectedDateEvents.Clear();
+                });
+                StatusMessage = "선택된 캘린더가 없습니다.";
+                return;
+            }
+
             try
             {
                 StatusMessage = "일정 업데이트 중...";
 
-                var selectedCalendars = AvailableCalendars.Where(c => c.IsSelected).ToList();
-                
-                // 선택된 캘린더가 없거나 변경된 경우 UI 즉시 업데이트
+                // 선택된 캘린더가 변경된 경우 UI 즉시 업데이트
                 System.Windows.Application.Current.Dispatcher.Invoke(() =>
                 {
                     UpdateCalendarDaysDisplay(selectedCalendars);
@@ -854,37 +874,26 @@ namespace GoogleCalendarWidget
 
         private void UpdateCalendarDaysDisplay(List<CalendarListItem> selectedCalendars)
         {
-            var selectedCalendarIds = selectedCalendars?.Select(c => c.Id).ToHashSet() ?? new HashSet<string>();
-            
+            var selectedCalendarIds = selectedCalendars?.Where(c => c.IsSelected).Select(c => c.Id).ToHashSet() ?? new HashSet<string>();
+
             foreach (var dayItem in CalendarDays)
             {
                 dayItem.EventColors.Clear();
 
-                if (_eventsCache.ContainsKey(dayItem.Date.Date) && selectedCalendarIds.Any())
+                // 항상 filteredEvents 기준으로만 점 표시
+                var filteredEvents = _eventsCache.ContainsKey(dayItem.Date.Date)
+                    ? _eventsCache[dayItem.Date.Date].Where(e => selectedCalendarIds.Contains(e.Organizer?.Email)).ToList()
+                    : new List<Event>();
+
+                if (filteredEvents.Any())
                 {
-                    // 선택된 캘린더의 이벤트만 필터링
-                    var filteredEvents = _eventsCache[dayItem.Date.Date]
-                        .Where(e => selectedCalendarIds.Contains(e.Organizer?.Email))
+                    dayItem.HasEvents = true;
+                    dayItem.EventCount = filteredEvents.Count;
+                    dayItem.EventColors = filteredEvents
+                        .Select(e => GetCalendarColor(e.Organizer?.Email))
+                        .Distinct()
+                        .Take(3)
                         .ToList();
-                    
-                    if (filteredEvents.Any())
-                    {
-                        dayItem.HasEvents = true;
-                        dayItem.EventCount = filteredEvents.Count;
-
-                        var colors = filteredEvents
-                            .Select(e => GetCalendarColor(e.Organizer?.Email))
-                            .Distinct()
-                            .Take(3)
-                            .ToList();
-
-                        dayItem.EventColors = colors;
-                    }
-                    else
-                    {
-                        dayItem.HasEvents = false;
-                        dayItem.EventCount = 0;
-                    }
                 }
                 else
                 {
