@@ -258,8 +258,10 @@
                           Foreground="White"
                           BorderBrush="#30FFFFFF"
                           BorderThickness="1"
-                          Padding="20,12"
+                          Padding="24,14"
+                          MinWidth="80"
                           FontWeight="Medium"
+                          FontSize="14"
                           Cursor="Hand"
                           Click="CancelButton_Click">
                         <Button.Template>
@@ -268,7 +270,8 @@
                                         BorderBrush="{TemplateBinding BorderBrush}"
                                         BorderThickness="{TemplateBinding BorderThickness}"
                                         CornerRadius="8" 
-                                        Padding="{TemplateBinding Padding}">
+                                        Padding="{TemplateBinding Padding}"
+                                        MinWidth="{TemplateBinding MinWidth}">
                                     <ContentPresenter HorizontalAlignment="Center" 
                                                     VerticalAlignment="Center"/>
                                 </Border>
@@ -283,7 +286,8 @@
                     <Button Background="#FF4FC3F7"
                           Foreground="White"
                           BorderThickness="0"
-                          Padding="20,12"
+                          Padding="24,14"
+                          MinWidth="100"
                           Margin="12,0,0,0"
                           FontWeight="Medium"
                           Cursor="Hand"
@@ -292,7 +296,8 @@
                             <ControlTemplate TargetType="Button">
                                 <Border Background="{TemplateBinding Background}" 
                                         CornerRadius="8" 
-                                        Padding="{TemplateBinding Padding}">
+                                        Padding="{TemplateBinding Padding}"
+                                        MinWidth="{TemplateBinding MinWidth}">
                                     <ContentPresenter HorizontalAlignment="Center" 
                                                     VerticalAlignment="Center"/>
                                     <Border.Effect>
