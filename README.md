@@ -64,7 +64,21 @@ WPF 기반 Google Calendar 데스크탑 위젯입니다.
    4. 이름: `GoogleCalendarWidget` (또는 원하는 이름)
    5. "만들기" 클릭
 
-   #### 2.3 credentials.json 파일 다운로드
+   #### 2.3 OAuth 동의 화면 설정 (배포용)
+   1. "API 및 서비스" → "OAuth 동의 화면"으로 이동
+   2. **외부** 선택 (다른 사용자도 사용 가능하도록)
+   3. 필수 정보 입력:
+      - 앱 이름: `Google Calendar Widget`
+      - 사용자 지원 이메일: 본인 이메일 주소
+      - 홈페이지 URL: `https://github.com/fbdjzk2002/GoogleCalendarWidget`
+      - 개발자 연락처 정보: 본인 이메일 주소
+   4. "저장 후 계속" 클릭
+   5. 범위(Scopes) 단계에서 "저장 후 계속" 클릭
+   6. 테스트 사용자 단계: 
+      - **프로덕션으로 게시**하거나
+      - 테스트 사용자 목록에 사용할 이메일 주소들 추가
+
+   #### 2.4 credentials.json 파일 다운로드
    1. 생성된 OAuth 클라이언트 옆의 다운로드 버튼 (⬇️) 클릭
    2. 다운로드된 JSON 파일을 `credentials.json`으로 이름 변경
    3. 프로젝트 루트 폴더(`GoogleCalendarWidget/`)에 복사
