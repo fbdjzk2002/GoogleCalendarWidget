@@ -6,15 +6,22 @@
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>favicon.ico</ApplicationIcon>
-    <AssemblyName>GoogleCalendarWidget</AssemblyName>
+    <AssemblyName>MaterialCalendarWidget</AssemblyName>
     <RootNamespace>GoogleCalendarWidget</RootNamespace>
-    <Company>Your Company</Company>
-    <Product>Google Calendar Widget for Windows 11</Product>
-    <Copyright>Copyright © 2025</Copyright>
+    <Company>Material Calendar Widget</Company>
+    <Product>Material Calendar Widget</Product>
+    <Copyright>Copyright © 2025 Material Calendar Widget</Copyright>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
     <LangVersion>latest</LangVersion>
     <PlatformTarget>AnyCPU</PlatformTarget>
+    
+    <!-- 설치 프로그램 관련 설정 -->
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <PublishTrimmed>false</PublishTrimmed>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
