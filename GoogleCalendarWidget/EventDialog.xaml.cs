@@ -137,6 +137,12 @@ namespace GoogleCalendarWidget
             this.Close();
         }
 
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.DialogResult = false;
+            this.Close();
+        }
+
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
             var result = MessageBox.Show($"'{TitleTextBox.Text}' 일정을 삭제하시겠습니까?", 
