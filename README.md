@@ -184,24 +184,24 @@ WPF 기반 Google Calendar 데스크탑 위젯입니다.
 
 ---
 
-## 스크린샷
+## 📸 스크린샷
 
-### 메인 화면
-- 다크 테마 캘린더 보기
-- 일정 목록과 상세 정보
-- Material Design 버튼과 아이콘
+### 🖥️ 메인 화면
+- 🌙 다크 테마 캘린더 보기
+- 📅 일정 목록과 상세 정보
+- 🎨 Material Design 버튼과 아이콘
 
 ![Google Calendar Widget Screenshot](GoogleCalendarWidget/screenshot.png)
 
-### 일정 편집
-- 직관적인 일정 편집 대화상자
-- 플로팅 힌트 입력 필드
-- 시간/날짜 선택기
+### ✏️ 일정 편집
+- 💬 직관적인 일정 편집 대화상자
+- ✨ 플로팅 힌트 입력 필드
+- 🕒 시간/날짜 선택기
 
-### 설정 패널
-- 투명도 조절 슬라이더
-- 캘린더 선택 체크박스
-- Material Design 스위치
+### ⚙️ 설정 패널
+- 🔄 투명도 조절 슬라이더
+- ☑️ 캘린더 선택 체크박스
+- 🎛️ Material Design 스위치
 
 ---
 
