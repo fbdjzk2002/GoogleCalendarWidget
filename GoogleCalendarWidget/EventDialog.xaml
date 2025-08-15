@@ -222,7 +222,8 @@
                       Background="#FFEF5350"
                       Foreground="White"
                       BorderThickness="0"
-                      Padding="20,12"
+                      Padding="20,16"
+                      MinHeight="44"
                       HorizontalAlignment="Left"
                       Cursor="Hand"
                       FontWeight="Medium"
@@ -231,7 +232,8 @@
                         <ControlTemplate TargetType="Button">
                             <Border Background="{TemplateBinding Background}" 
                                     CornerRadius="8" 
-                                    Padding="{TemplateBinding Padding}">
+                                    Padding="{TemplateBinding Padding}"
+                                    MinHeight="{TemplateBinding MinHeight}">
                                 <ContentPresenter HorizontalAlignment="Center" 
                                                 VerticalAlignment="Center"/>
                                 <Border.Effect>
@@ -258,8 +260,9 @@
                           Foreground="White"
                           BorderBrush="#30FFFFFF"
                           BorderThickness="1"
-                          Padding="24,14"
+                          Padding="24,16"
                           MinWidth="80"
+                          MinHeight="44"
                           FontWeight="Medium"
                           FontSize="14"
                           Cursor="Hand"
@@ -271,7 +274,8 @@
                                         BorderThickness="{TemplateBinding BorderThickness}"
                                         CornerRadius="8" 
                                         Padding="{TemplateBinding Padding}"
-                                        MinWidth="{TemplateBinding MinWidth}">
+                                        MinWidth="{TemplateBinding MinWidth}"
+                                        MinHeight="{TemplateBinding MinHeight}">
                                     <ContentPresenter HorizontalAlignment="Center" 
                                                     VerticalAlignment="Center"/>
                                 </Border>
@@ -286,8 +290,9 @@
                     <Button Background="#FF4FC3F7"
                           Foreground="White"
                           BorderThickness="0"
-                          Padding="24,14"
+                          Padding="24,16"
                           MinWidth="100"
+                          MinHeight="44"
                           Margin="12,0,0,0"
                           FontWeight="Medium"
                           Cursor="Hand"
@@ -297,7 +302,8 @@
                                 <Border Background="{TemplateBinding Background}" 
                                         CornerRadius="8" 
                                         Padding="{TemplateBinding Padding}"
-                                        MinWidth="{TemplateBinding MinWidth}">
+                                        MinWidth="{TemplateBinding MinWidth}"
+                                        MinHeight="{TemplateBinding MinHeight}">
                                     <ContentPresenter HorizontalAlignment="Center" 
                                                     VerticalAlignment="Center"/>
                                     <Border.Effect>
