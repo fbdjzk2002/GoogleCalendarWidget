@@ -760,29 +760,36 @@ namespace GoogleCalendarWidget
 
             try
             {
-                // 이벤트 캐시 초기화 (선택 해제된 캘린더 이벤트 제거)
-                _eventsCache.Clear();
-                StatusMessage = "일정 로드 중...";
+                StatusMessage = "일정 업데이트 중...";
 
                 var selectedCalendars = AvailableCalendars.Where(c => c.IsSelected).ToList();
+                
+                // 선택된 캘린더가 없거나 변경된 경우 UI 즉시 업데이트
+                System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                {
+                    UpdateCalendarDaysDisplay(selectedCalendars);
+                    LoadEventsForSelectedDate();
+                });
+
                 if (!selectedCalendars.Any())
                 {
-                    // 선택된 캘린더가 없을 때 모든 일정 표시를 제거
-                    System.Windows.Application.Current.Dispatcher.Invoke(() =>
-                    {
-                        foreach (var dayItem in CalendarDays)
-                        {
-                            dayItem.EventColors.Clear();
-                            dayItem.HasEvents = false;
-                            dayItem.EventCount = 0;
-                        }
-                        
-                        SelectedDateEvents.Clear();
-                    });
-                    
                     StatusMessage = "선택된 캘린더가 없습니다.";
                     return;
                 }
+
+                // 선택된 캘린더만 새로 로드 (기존 캐시는 유지하되 필요시에만 업데이트)
+                bool needsRefresh = _eventsCache.Count == 0 || 
+                    selectedCalendars.Any(cal => !_eventsCache.Values.Any(events => 
+                        events.Any(e => e.Organizer?.Email == cal.Id)));
+
+                if (!needsRefresh)
+                {
+                    StatusMessage = $"업데이트: {DateTime.Now:HH:mm} ({selectedCalendars.Count}개 캘린더)";
+                    return;
+                }
+
+                // 캐시 초기화는 실제로 새 데이터가 필요할 때만
+                _eventsCache.Clear();
 
                 var firstDay = CalendarDays.First().Date;
                 var lastDay = CalendarDays.Last().Date;
@@ -834,45 +841,7 @@ namespace GoogleCalendarWidget
 
                 System.Windows.Application.Current.Dispatcher.Invoke(() =>
                 {
-                    var selectedCalendarIds = selectedCalendars.Select(c => c.Id).ToHashSet();
-                    
-                    foreach (var dayItem in CalendarDays)
-                    {
-                        dayItem.EventColors.Clear();
-
-                        if (_eventsCache.ContainsKey(dayItem.Date.Date))
-                        {
-                            // 선택된 캘린더의 이벤트만 필터링
-                            var filteredEvents = _eventsCache[dayItem.Date.Date]
-                                .Where(e => selectedCalendarIds.Contains(e.Organizer?.Email))
-                                .ToList();
-                            
-                            if (filteredEvents.Any())
-                            {
-                                dayItem.HasEvents = true;
-                                dayItem.EventCount = filteredEvents.Count;
-
-                                var colors = filteredEvents
-                                    .Select(e => GetCalendarColor(e.Organizer?.Email))
-                                    .Distinct()
-                                    .Take(3)
-                                    .ToList();
-
-                                dayItem.EventColors = colors;
-                            }
-                            else
-                            {
-                                dayItem.HasEvents = false;
-                                dayItem.EventCount = 0;
-                            }
-                        }
-                        else
-                        {
-                            dayItem.HasEvents = false;
-                            dayItem.EventCount = 0;
-                        }
-                    }
-
+                    UpdateCalendarDaysDisplay(selectedCalendars);
                     LoadEventsForSelectedDate();
                     StatusMessage = $"업데이트: {DateTime.Now:HH:mm} ({selectedCalendars.Count}개 캘린더)";
                 });
@@ -880,6 +849,48 @@ namespace GoogleCalendarWidget
             catch (Exception ex)
             {
                 StatusMessage = $"로드 실패: {ex.Message}";
+            }
+        }
+
+        private void UpdateCalendarDaysDisplay(List<CalendarListItem> selectedCalendars)
+        {
+            var selectedCalendarIds = selectedCalendars?.Select(c => c.Id).ToHashSet() ?? new HashSet<string>();
+            
+            foreach (var dayItem in CalendarDays)
+            {
+                dayItem.EventColors.Clear();
+
+                if (_eventsCache.ContainsKey(dayItem.Date.Date) && selectedCalendarIds.Any())
+                {
+                    // 선택된 캘린더의 이벤트만 필터링
+                    var filteredEvents = _eventsCache[dayItem.Date.Date]
+                        .Where(e => selectedCalendarIds.Contains(e.Organizer?.Email))
+                        .ToList();
+                    
+                    if (filteredEvents.Any())
+                    {
+                        dayItem.HasEvents = true;
+                        dayItem.EventCount = filteredEvents.Count;
+
+                        var colors = filteredEvents
+                            .Select(e => GetCalendarColor(e.Organizer?.Email))
+                            .Distinct()
+                            .Take(3)
+                            .ToList();
+
+                        dayItem.EventColors = colors;
+                    }
+                    else
+                    {
+                        dayItem.HasEvents = false;
+                        dayItem.EventCount = 0;
+                    }
+                }
+                else
+                {
+                    dayItem.HasEvents = false;
+                    dayItem.EventCount = 0;
+                }
             }
         }
 
