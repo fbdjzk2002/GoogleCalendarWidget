@@ -711,9 +711,7 @@ namespace GoogleCalendarWidget
                         {
                             if (e.PropertyName == nameof(CalendarListItem.IsSelected))
                             {
-                                SaveSelectedCalendars();
-                                _eventsCache.Clear();
-                                GenerateCalendarDays(); // 월 전체를 새로 그림
+                                SaveSelectedCalendars();                           
                                 await LoadMonthEvents();
                             }
                         };
@@ -762,23 +760,8 @@ namespace GoogleCalendarWidget
 
             var selectedCalendars = AvailableCalendars.Where(c => c.IsSelected).ToList();
 
-            // 선택된 캘린더가 없으면 완전 초기화
-            if (!selectedCalendars.Any())
-            {
-                _eventsCache.Clear();
-                System.Windows.Application.Current.Dispatcher.Invoke(() =>
-                {
-                    foreach (var dayItem in CalendarDays)
-                    {
-                        dayItem.EventColors.Clear();
-                        dayItem.HasEvents = false;
-                        dayItem.EventCount = 0;
-                    }
-                    SelectedDateEvents.Clear();
-                });
-                StatusMessage = "선택된 캘린더가 없습니다.";
-                return;
-            }
+            _eventsCache.Clear();
+            GenerateCalendarDays(); // 월 전체를 새로 그림
 
             try
             {
@@ -977,7 +960,6 @@ namespace GoogleCalendarWidget
         private void ChangeMonth(int direction)
         {
             _currentMonth = _currentMonth.AddMonths(direction);
-            GenerateCalendarDays();
             _ = LoadMonthEvents();
         }
 
@@ -985,7 +967,6 @@ namespace GoogleCalendarWidget
         {
             _currentMonth = DateTime.Today;
             SelectedDate = DateTime.Today;
-            GenerateCalendarDays();
             _ = LoadMonthEvents();
         }
 
