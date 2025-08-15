@@ -221,6 +221,17 @@ Material Calendar Widget이 Google Calendar API 전체 권한을 요청하는 �
 - 📜 **[서비스 약관](TERMS_OF_SERVICE.md)** - 서비스 이용 약관 및 조건
 - ⚖️ **[MIT 라이선스](LICENSE)** - 오픈소스 라이선스 조건
 
+## 🏠 **웹사이트 소유권 확인**
+
+본 프로젝트는 GitHub 사용자 **fbdjzk2002**가 소유하고 관리합니다.
+
+- **GitHub 프로필**: [https://github.com/fbdjzk2002](https://github.com/fbdjzk2002)
+- **프로젝트 저장소**: [https://github.com/fbdjzk2002/GoogleCalendarWidget](https://github.com/fbdjzk2002/GoogleCalendarWidget)
+- **커밋 히스토리**: 모든 커밋이 fbdjzk2002 계정으로 이루어짐
+- **소유권 증명**: 이 텍스트는 저장소 소유자만이 추가할 수 있습니다
+
+**Material Calendar Widget** 애플리케이션의 공식 홈페이지입니다.
+
 ## 🙏 감사의 말
 
 - [Material Design in XAML](https://github.com/MaterialDesignInXAML/MaterialDesignInXamlToolkit) - 아름다운 UI 컴포넌트
