@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Material Calendar Widget</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 60px 0;
+            color: white;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            margin: 40px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+        
+        .feature {
+            text-align: center;
+            padding: 30px;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+        
+        .feature h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .download-section {
+            text-align: center;
+            margin: 50px 0;
+        }
+        
+        .download-btn {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 10px;
+            transition: transform 0.3s ease;
+        }
+        
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 40px 0;
+            color: white;
+            opacity: 0.8;
+        }
+        
+        .screenshot {
+            text-align: center;
+            margin: 40px 0;
+        }
+        
+        .screenshot img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>📅 Material Calendar Widget</h1>
+            <p>Google Calendar를 위한 아름다운 데스크톱 위젯</p>
+        </header>
+        
+        <main class="main-content">
+            <section class="intro">
+                <h2>🎯 소개</h2>
+                <p>Material Calendar Widget은 Google Calendar를 데스크톱에서 편리하게 사용할 수 있도록 하는 WPF 기반 애플리케이션입니다. Material Design을 적용한 현대적이고 직관적인 인터페이스로 일정 관리를 더욱 효율적으로 할 수 있습니다.</p>
+            </section>
+            
+            <section class="screenshot">
+                <h2>📸 스크린샷</h2>
+                <img src="https://raw.githubusercontent.com/fbdjzk2002/GoogleCalendarWidget/master/GoogleCalendarWidget/screenshot.png" alt="Material Calendar Widget Screenshot" />
+            </section>
+            
+            <section class="features">
+                <div class="feature">
+                    <h3>🌙 다크 테마</h3>
+                    <p>Material Design 다크 모드로 눈의 피로를 줄이고 세련된 인터페이스를 제공합니다.</p>
+                </div>
+                
+                <div class="feature">
+                    <h3>📅 실시간 동기화</h3>
+                    <p>Google Calendar와 실시간으로 동기화되어 항상 최신 일정을 확인할 수 있습니다.</p>
+                </div>
+                
+                <div class="feature">
+                    <h3>✏️ 일정 관리</h3>
+                    <p>일정 추가, 수정, 삭제를 위젯에서 직접 할 수 있어 편리합니다.</p>
+                </div>
+                
+                <div class="feature">
+                    <h3>⚙️ 맞춤 설정</h3>
+                    <p>투명도 조절, 캘린더 선택 등 개인 취향에 맞게 설정할 수 있습니다.</p>
+                </div>
+                
+                <div class="feature">
+                    <h3>📌 시스템 트레이</h3>
+                    <p>시스템 트레이에 상주하여 필요할 때 빠르게 접근할 수 있습니다.</p>
+                </div>
+                
+                <div class="feature">
+                    <h3>🔓 오픈소스</h3>
+                    <p>MIT 라이선스 하에 소스 코드가 공개되어 투명하고 안전합니다.</p>
+                </div>
+            </section>
+            
+            <section class="download-section">
+                <h2>🚀 다운로드 및 설치</h2>
+                <p>GitHub에서 소스 코드를 다운로드하고 빌드하여 사용하실 수 있습니다.</p>
+                <a href="https://github.com/fbdjzk2002/GoogleCalendarWidget" class="download-btn">📥 GitHub에서 다운로드</a>
+                <a href="https://github.com/fbdjzk2002/GoogleCalendarWidget/blob/master/README.md" class="download-btn">📖 설치 가이드</a>
+            </section>
+            
+            <section class="tech-specs">
+                <h2>🔧 기술 사양</h2>
+                <ul style="list-style: none; padding: 0;">
+                    <li><strong>플랫폼:</strong> Windows 10/11</li>
+                    <li><strong>프레임워크:</strong> .NET 6.0 WPF</li>
+                    <li><strong>UI 라이브러리:</strong> Material Design in XAML</li>
+                    <li><strong>API:</strong> Google Calendar API v3</li>
+                    <li><strong>인증:</strong> OAuth 2.0</li>
+                    <li><strong>라이선스:</strong> MIT License</li>
+                </ul>
+            </section>
+        </main>
+        
+        <footer class="footer">
+            <p>&copy; 2025 Material Calendar Widget. Made with ❤️ and Material Design.</p>
+            <p>
+                <a href="https://github.com/fbdjzk2002/GoogleCalendarWidget/blob/master/PRIVACY_POLICY.md" style="color: white; margin: 0 10px;">개인정보처리방침</a>
+                <a href="https://github.com/fbdjzk2002/GoogleCalendarWidget/blob/master/TERMS_OF_SERVICE.md" style="color: white; margin: 0 10px;">서비스 약관</a>
+            </p>
+        </footer>
+    </div>
+</body>
+</html>
