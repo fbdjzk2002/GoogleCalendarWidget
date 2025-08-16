@@ -236,7 +236,7 @@ namespace GoogleCalendarWidget
             {
                 _windowOpacity = value;
                 OnPropertyChanged();
-                SaveSettings();
+                if (!_isLoadingSettings) SaveSettings();
             }
         }
 
@@ -562,7 +562,34 @@ namespace GoogleCalendarWidget
             AddTrayIcon();
 
             // 초기 설정 적용 (LoadSettings에서 이미 IsPinned가 설정됨)
+            System.Diagnostics.Debug.WriteLine($"Before SetWindowPosition: Left={this.Left}, Top={this.Top}");
+            
+            // 저장된 위치와 현재 위치가 다르다면 강제로 설정
+            if (_userSettings?.WindowPosition != null)
+            {
+                var savedX = _userSettings.WindowPosition.Value.X;
+                var savedY = _userSettings.WindowPosition.Value.Y;
+                
+                if (Math.Abs(this.Left - savedX) > 1 || Math.Abs(this.Top - savedY) > 1)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Position mismatch in OnSourceInitialized, correcting from ({this.Left}, {this.Top}) to ({savedX}, {savedY})");
+                    
+                    // UI 스레드에서 위치 설정
+                    this.Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        this.Left = savedX;
+                        this.Top = savedY;
+                        System.Diagnostics.Debug.WriteLine($"After OnSourceInitialized Dispatcher.BeginInvoke: Left={this.Left}, Top={this.Top}");
+                    }), System.Windows.Threading.DispatcherPriority.Loaded);
+                    
+                    // 즉시 설정도 시도
+                    this.Left = savedX;
+                    this.Top = savedY;
+                }
+            }
+            
             SetWindowPosition(IsPinned);
+            System.Diagnostics.Debug.WriteLine($"After SetWindowPosition: Left={this.Left}, Top={this.Top}");
         }
 
         private void SetWindowPosition(bool pinToDesktop)
@@ -1009,10 +1036,38 @@ namespace GoogleCalendarWidget
 
                     if (_userSettings.WindowPosition != null)
                     {
-                        this.Left = _userSettings.WindowPosition.Value.X;
-                        this.Top = _userSettings.WindowPosition.Value.Y;
-                        System.Diagnostics.Debug.WriteLine($"Window position set to: ({this.Left}, {this.Top})");
+                        var targetX = _userSettings.WindowPosition.Value.X;
+                        var targetY = _userSettings.WindowPosition.Value.Y;
+                        
+                        System.Diagnostics.Debug.WriteLine($"Setting window position to: ({targetX}, {targetY})");
+                        
+                        // UI 스레드에서 위치 설정
+                        this.Dispatcher.BeginInvoke(new Action(() =>
+                        {
+                            this.Left = targetX;
+                            this.Top = targetY;
+                            System.Diagnostics.Debug.WriteLine($"After Dispatcher.BeginInvoke: Left={this.Left}, Top={this.Top}");
+                        }), System.Windows.Threading.DispatcherPriority.Loaded);
+                        
+                        // 즉시 설정도 시도
+                        this.Left = targetX;
+                        this.Top = targetY;
+                        
+                        // 위치 설정 후 즉시 확인
+                        System.Diagnostics.Debug.WriteLine($"Immediately after setting: Left={this.Left}, Top={this.Top}");
+                        
+                        // 위치가 올바르게 설정되지 않았다면 강제로 다시 설정
+                        if (Math.Abs(this.Left - targetX) > 1 || Math.Abs(this.Top - targetY) > 1)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Position mismatch detected, forcing position again");
+                            this.Left = targetX;
+                            this.Top = targetY;
+                            System.Diagnostics.Debug.WriteLine($"After forcing: Left={this.Left}, Top={this.Top}");
+                        }
                     }
+                    
+                    // 설정 적용 후 최종 위치 확인
+                    System.Diagnostics.Debug.WriteLine($"Final position after LoadSettings: Left={this.Left}, Top={this.Top}");
 
                     if (_userSettings.WindowSize != null)
                     {
@@ -1560,12 +1615,28 @@ namespace GoogleCalendarWidget
             if (string.IsNullOrEmpty(value))
                 return null;
 
+            System.Diagnostics.Debug.WriteLine($"PointConverter: Parsing value '{value}'");
+            
             var parts = value.Split(',');
+            System.Diagnostics.Debug.WriteLine($"PointConverter: Split into {parts.Length} parts: [{string.Join(", ", parts)}]");
+            
             if (parts.Length == 2 && 
                 double.TryParse(parts[0], out double x) && 
                 double.TryParse(parts[1], out double y))
             {
-                return new Point(x, y);
+                var result = new Point(x, y);
+                System.Diagnostics.Debug.WriteLine($"PointConverter: Successfully parsed to Point({x}, {y})");
+                return result;
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"PointConverter: Failed to parse '{value}' to Point");
+                if (parts.Length != 2)
+                    System.Diagnostics.Debug.WriteLine($"PointConverter: Expected 2 parts, got {parts.Length}");
+                if (!double.TryParse(parts[0], out _))
+                    System.Diagnostics.Debug.WriteLine($"PointConverter: Failed to parse X coordinate '{parts[0]}'");
+                if (parts.Length > 1 && !double.TryParse(parts[1], out _))
+                    System.Diagnostics.Debug.WriteLine($"PointConverter: Failed to parse Y coordinate '{parts[1]}'");
             }
 
             return null;
