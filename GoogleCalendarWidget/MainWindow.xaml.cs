@@ -1057,10 +1057,6 @@ namespace GoogleCalendarWidget
                 var json = JsonConvert.SerializeObject(_userSettings, Formatting.Indented);
                 var fullPath = Path.Combine(settingsPath, "settings.json");
                 File.WriteAllText(fullPath, json);
-                
-                // 디버깅: 저장된 설정 확인
-                System.Diagnostics.Debug.WriteLine($"Settings saved to: {fullPath}");
-                System.Diagnostics.Debug.WriteLine($"Settings saved: IsPinned={_userSettings.IsPinned}, Position=({_userSettings.WindowPosition.X}, {_userSettings.WindowPosition.Y}), Size=({_userSettings.WindowSize.Width}x{_userSettings.WindowSize.Height})");
             }
             catch (Exception ex)
             {
