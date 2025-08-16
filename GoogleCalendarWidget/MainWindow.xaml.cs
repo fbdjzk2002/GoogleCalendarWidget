@@ -153,6 +153,7 @@ namespace GoogleCalendarWidget
         private System.Windows.Point _resizeStartPoint;
         private System.Windows.Size _resizeStartSize;
         private UserSettings _userSettings;
+        private bool _isLoadingSettings = false;
 
         public ObservableCollection<CalendarEventItem> SelectedDateEvents
         {
@@ -206,6 +207,7 @@ namespace GoogleCalendarWidget
                 _isPinned = value;
                 SetWindowPosition(value);
                 OnPropertyChanged();
+                if (!_isLoadingSettings) SaveSettings();
             }
         }
 
@@ -217,6 +219,7 @@ namespace GoogleCalendarWidget
                 _isCompactMode = value;
                 UpdateWindowSize();
                 OnPropertyChanged();
+                if (!_isLoadingSettings) SaveSettings();
             }
         }
 
@@ -257,15 +260,12 @@ namespace GoogleCalendarWidget
             DataContext = this;
 
             // 초기화
-            LoadSettings();
             _eventsCache = new Dictionary<DateTime, List<Event>>();
             SelectedDateEvents = new ObservableCollection<CalendarEventItem>();
             CalendarDays = new ObservableCollection<CalendarDayItem>();
             AvailableCalendars = new ObservableCollection<CalendarListItem>();
             _currentMonth = DateTime.Today;
             SelectedDate = DateTime.Today;
-            IsPinned = false;
-            IsCompactMode = false;
             IsSettingsOpen = false;
 
             // 커맨드 초기화
@@ -284,11 +284,14 @@ namespace GoogleCalendarWidget
             this.ResizeMode = ResizeMode.NoResize;
             this.ShowInTaskbar = false;
 
-            // 초기 위치 설정
+            // 기본 윈도우 크기 및 위치 설정 (설정 로드 전)
             this.Width = 800;
             this.Height = 500;
             this.Left = SystemParameters.PrimaryScreenWidth - this.Width - 20;
             this.Top = (SystemParameters.PrimaryScreenHeight - this.Height) / 2;
+
+            // 설정 로드 (저장된 설정이 있으면 위 기본값들을 덮어씀)
+            LoadSettings();
 
             // 시스템 트레이 아이콘 설정 (Win32 API 사용)
             InitializeSystemTray();
@@ -558,16 +561,8 @@ namespace GoogleCalendarWidget
             // Win32 API 시스템 트레이 아이콘 추가
             AddTrayIcon();
 
-            // 초기 설정 적용
-            if (_userSettings?.IsPinned ?? false)
-            {
-                IsPinned = true;
-            }
-            else
-            {
-                // 핀 고정이 아닌 경우 바탕화면 바로 위에 배치
-                SetWindowPosition(false);
-            }
+            // 초기 설정 적용 (LoadSettings에서 이미 IsPinned가 설정됨)
+            SetWindowPosition(IsPinned);
         }
 
         private void SetWindowPosition(bool pinToDesktop)
@@ -993,6 +988,8 @@ namespace GoogleCalendarWidget
         {
             try
             {
+                _isLoadingSettings = true;
+                
                 var settingsPath = Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                     "GoogleCalendarWidget",
@@ -1002,6 +999,10 @@ namespace GoogleCalendarWidget
                 {
                     var json = File.ReadAllText(settingsPath);
                     _userSettings = JsonConvert.DeserializeObject<UserSettings>(json);
+                    
+                    // 디버깅: 로드된 설정 확인
+                    System.Diagnostics.Debug.WriteLine($"Settings loaded: IsPinned={_userSettings.IsPinned}, Position=({_userSettings.WindowPosition?.X}, {_userSettings.WindowPosition?.Y}), Size=({_userSettings.WindowSize?.Width}x{_userSettings.WindowSize?.Height})");
+                    
                     WindowOpacity = _userSettings.Opacity;
                     IsPinned = _userSettings.IsPinned;
                     IsCompactMode = _userSettings.IsCompactMode;
@@ -1010,16 +1011,30 @@ namespace GoogleCalendarWidget
                     {
                         this.Left = _userSettings.WindowPosition.Value.X;
                         this.Top = _userSettings.WindowPosition.Value.Y;
+                        System.Diagnostics.Debug.WriteLine($"Window position set to: ({this.Left}, {this.Top})");
+                    }
+
+                    if (_userSettings.WindowSize != null)
+                    {
+                        this.Width = _userSettings.WindowSize.Value.Width;
+                        this.Height = _userSettings.WindowSize.Value.Height;
+                        System.Diagnostics.Debug.WriteLine($"Window size set to: {this.Width}x{this.Height}");
                     }
                 }
                 else
                 {
+                    System.Diagnostics.Debug.WriteLine($"Settings file not found at: {settingsPath}");
                     _userSettings = new UserSettings();
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"Error loading settings: {ex.Message}");
                 _userSettings = new UserSettings();
+            }
+            finally
+            {
+                _isLoadingSettings = false;
             }
         }
 
@@ -1031,6 +1046,7 @@ namespace GoogleCalendarWidget
                 _userSettings.IsPinned = IsPinned;
                 _userSettings.IsCompactMode = IsCompactMode;
                 _userSettings.WindowPosition = new Point(this.Left, this.Top);
+                _userSettings.WindowSize = new Size(this.Width, this.Height);
 
                 var settingsPath = Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
@@ -1039,9 +1055,17 @@ namespace GoogleCalendarWidget
                 Directory.CreateDirectory(settingsPath);
 
                 var json = JsonConvert.SerializeObject(_userSettings, Formatting.Indented);
-                File.WriteAllText(Path.Combine(settingsPath, "settings.json"), json);
+                var fullPath = Path.Combine(settingsPath, "settings.json");
+                File.WriteAllText(fullPath, json);
+                
+                // 디버깅: 저장된 설정 확인
+                System.Diagnostics.Debug.WriteLine($"Settings saved to: {fullPath}");
+                System.Diagnostics.Debug.WriteLine($"Settings saved: IsPinned={_userSettings.IsPinned}, Position=({_userSettings.WindowPosition.X}, {_userSettings.WindowPosition.Y}), Size=({_userSettings.WindowSize.Width}x{_userSettings.WindowSize.Height})");
             }
-            catch { }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error saving settings: {ex.Message}");
+            }
         }
 
         private void SaveSelectedCalendars()
@@ -1507,6 +1531,7 @@ namespace GoogleCalendarWidget
         public bool IsPinned { get; set; } = false;
         public bool IsCompactMode { get; set; } = false;
         public Point? WindowPosition { get; set; }
+        public Size? WindowSize { get; set; }
         public List<string> SelectedCalendarIds { get; set; } = new List<string>();
     }
 
