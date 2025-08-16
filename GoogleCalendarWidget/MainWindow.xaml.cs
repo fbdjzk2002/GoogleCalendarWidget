@@ -1526,9 +1526,86 @@ namespace GoogleCalendarWidget
         public double Opacity { get; set; } = 0.95;
         public bool IsPinned { get; set; } = false;
         public bool IsCompactMode { get; set; } = false;
+        
+        [JsonConverter(typeof(PointConverter))]
         public Point? WindowPosition { get; set; }
+        
+        [JsonConverter(typeof(SizeConverter))]
         public Size? WindowSize { get; set; }
+        
         public List<string> SelectedCalendarIds { get; set; } = new List<string>();
+    }
+
+    // Point 타입을 위한 JSON 컨버터
+    public class PointConverter : JsonConverter<Point?>
+    {
+        public override void WriteJson(JsonWriter writer, Point? value, JsonSerializer serializer)
+        {
+            if (value == null)
+            {
+                writer.WriteNull();
+            }
+            else
+            {
+                writer.WriteValue($"{value.Value.X},{value.Value.Y}");
+            }
+        }
+
+        public override Point? ReadJson(JsonReader reader, Type objectType, Point? existingValue, bool hasExistingValue, JsonSerializer serializer)
+        {
+            if (reader.Value == null)
+                return null;
+
+            var value = reader.Value.ToString();
+            if (string.IsNullOrEmpty(value))
+                return null;
+
+            var parts = value.Split(',');
+            if (parts.Length == 2 && 
+                double.TryParse(parts[0], out double x) && 
+                double.TryParse(parts[1], out double y))
+            {
+                return new Point(x, y);
+            }
+
+            return null;
+        }
+    }
+
+    // Size 타입을 위한 JSON 컨버터
+    public class SizeConverter : JsonConverter<Size?>
+    {
+        public override void WriteJson(JsonWriter writer, Size? value, JsonSerializer serializer)
+        {
+            if (value == null)
+            {
+                writer.WriteNull();
+            }
+            else
+            {
+                writer.WriteValue($"{value.Value.Width},{value.Value.Height}");
+            }
+        }
+
+        public override Size? ReadJson(JsonReader reader, Type objectType, Size? existingValue, bool hasExistingValue, JsonSerializer serializer)
+        {
+            if (reader.Value == null)
+                return null;
+
+            var value = reader.Value.ToString();
+            if (string.IsNullOrEmpty(value))
+                return null;
+
+            var parts = value.Split(',');
+            if (parts.Length == 2 && 
+                double.TryParse(parts[0], out double width) && 
+                double.TryParse(parts[1], out double height))
+            {
+                return new Size(width, height);
+            }
+
+            return null;
+        }
     }
 
     public class RelayCommand : ICommand
